@@ -119,8 +119,8 @@ if [[ ! -x "${CUDA_ROOT}/bin/nvcc" ]]; then
     echo "Run the TacEx Conda environment update or set UNIVTAC_CUDA_HOME." >&2
     exit 1
 fi
-if ! "${CUDA_ROOT}/bin/nvcc" --version | tail -n 1 | grep -q "release 12\.6"; then
-    echo "UniVTAC must use CUDA 12.6; ${CUDA_ROOT} is a different toolkit." >&2
+if ! "${CUDA_ROOT}/bin/nvcc" --version | grep -q "release 12\.8"; then
+    echo "UniVTAC must use CUDA 12.8; ${CUDA_ROOT} is a different toolkit." >&2
     exit 1
 fi
 
@@ -130,6 +130,8 @@ export CUDA_HOME="${CUDA_ROOT}"
 export CUDA_PATH="${CUDA_ROOT}"
 export CUDACXX="${CUDA_ROOT}/bin/nvcc"
 export CMAKE_TOOLCHAIN_FILE="${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+# GitHub's tinygltf v2.9.6 archive no longer matches the SHA512 in the pinned vcpkg registry.
+export VCPKG_OVERLAY_PORTS="${PROJECT_ROOT}/scripts/vcpkg-overlays${VCPKG_OVERLAY_PORTS:+:${VCPKG_OVERLAY_PORTS}}"
 export CMAKE_CUDA_ARCHITECTURES="${CUDA_ARCH}"
 export CMAKE_BUILD_PARALLEL_LEVEL="${BUILD_JOBS}"
 export MAX_JOBS="${BUILD_JOBS}"
@@ -165,7 +167,7 @@ from importlib.metadata import PackageNotFoundError, version
 expected = {
     "isaacsim": "5.1.0.0",
     "isaaclab": "2.3.0",
-    "torch": "2.7.0",
+    "torch": "2.7.0+cu128",
     "tacex": "0.1.0",
     "tacex-assets": "0.1.0",
     "tacex-uipc": "0.1.0",
@@ -199,8 +201,8 @@ import torch
 import uipc
 import curobo
 
-if torch.version.cuda != "12.6":
-    print(f"[wrong] PyTorch CUDA runtime is {torch.version.cuda}, expected 12.6")
+if torch.version.cuda != "12.8":
+    print(f"[wrong] PyTorch CUDA runtime is {torch.version.cuda}, expected 12.8")
     failed = True
 else:
     print(f"[ok] PyTorch CUDA {torch.version.cuda}")
@@ -220,7 +222,7 @@ echo "[2/7] Installing Isaac Sim 5.1 and Isaac Lab 2.3.0."
     "setuptools==75.8.2" "setuptools-scm==8.1.0" "wheel==0.42.0"
 "${PIP[@]}" install flatdict==4.0.1 --no-build-isolation
 "${PIP[@]}" install "torch==2.7.0" "torchvision==0.22.0" \
-    --index-url https://download.pytorch.org/whl/cu126
+    --index-url https://download.pytorch.org/whl/cu128
 "${PIP[@]}" install \
     "isaaclab[isaacsim,all]==2.3.0" \
     --extra-index-url https://pypi.nvidia.com
