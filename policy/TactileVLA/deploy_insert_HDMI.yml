@@ -1,0 +1,39 @@
+# Basic experiment configuration (keep unchanged across policies)
+policy_name: TactileVLA
+seed: 0
+instruction_type: seen
+instuction_file: null
+
+# ----- tactileVLA-specific deploy parameters -----
+# RTac1 checkpoint step directory and the normalization domain it was trained on.
+checkpoint_dir: /home/henry/Documents/Research/VTLA/checkpoints/rtac1/UniVTAC_insert_HDMI_isaac51_ep100_tactilevla_gsmall/19999
+domain_name: UniVTAC_insert_HDMI
+
+# RTac1 repo. Policy starts the model server with <tactilevla_repo>/.venv/bin/python
+# on a free localhost port unless tactilevla_python / tactilevla_port are set.
+tactilevla_repo: /home/henry/Documents/Research/VTLA/rtac1-baseline_tactile_vla_rtac1_0421_v1
+# tactilevla_python: /path/to/python
+# tactilevla_port: 10800
+# tactilevla_startup_timeout: 300
+# tactilevla_request_timeout: 300
+
+device: cuda
+num_inference_steps: 10
+# "auto" reads action_joint_rep from the checkpoint's train_config.json.
+action_rep: auto
+
+# One inference per step, temporally ensembled over the first chunk_first_n
+# executable actions of every chunk, weighted exp(-ensemble_k * i) oldest first.
+chunk_first_n: 20
+ensemble_k: 0.01
+
+# Must match the checkpoint's tactile_input_config_file.json.
+tactile_key: right_tactile_gripper
+tactile_sensor: GelSightMini
+gripper_slot_idx: 28
+# arm_slice: "9:16"   # only for custom action layouts
+# gripper_index: 44
+
+# true teleports the joints onto every target, as the April RTac1 evaluator did;
+# false tracks targets with the joint PD controller, like the other UniVTAC policies.
+force_joint_targets: false

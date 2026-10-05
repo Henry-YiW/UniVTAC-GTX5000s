@@ -70,7 +70,11 @@ AppLauncher.add_app_launcher_args(parser)
 # parse the arguments
 args_cli = parser.parse_args()
 args_cli.enable_cameras = True
-args_cli.livestream = 2
+# Livestream 2 starts Kit's WebRTC server and skips the local viewport.
+# Use the on-machine Isaac window instead; livestream also probes localhost
+# ports and can block the tactileVLA HTTP server.
+args_cli.livestream = 0
+args_cli.headless = True
 args_cli.num_envs = 1
 
 task_config, task_config_file = load_task_config(
